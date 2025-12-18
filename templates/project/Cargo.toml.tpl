@@ -12,6 +12,10 @@ async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 dotenvy = "0.15"
 
+# OpenAPI/Swagger documentation
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+utoipa-swagger-ui = { version = "8", features = ["axum"] }
+
 # Database dependencies - uncomment the ones you need
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "mysql", "sqlite", "chrono"] }
 mongodb = "3.1"

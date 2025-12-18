@@ -85,6 +85,12 @@ enum GenCommands {
         name: String,
     },
 
+    /// Regenerate Swagger/OpenAPI documentation
+    Swagger {
+        /// Component name
+        name: String,
+    },
+
     /// Generate database adapter(s)
     Adapter {
         /// Component name
@@ -145,6 +151,16 @@ fn main() {
             GenCommands::Data { name } => dispatch(GenKind::Data, &ctx, &name),
 
             GenCommands::Handler { name } => dispatch(GenKind::Handler, &ctx, &name),
+
+            GenCommands::Swagger { name } => {
+                // Force regenerate handler to update Swagger docs
+                let force_ctx = Context {
+                    dry_run: ctx.dry_run,
+                    force: true,  // Always force for swagger regeneration
+                    is_new_all: ctx.is_new_all,
+                };
+                dispatch(GenKind::Handler, &force_ctx, &name);
+            }
 
             GenCommands::Adapter { name, db_type } => {
                 if db_type.to_lowercase() == "all" {

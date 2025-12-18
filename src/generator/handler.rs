@@ -40,12 +40,12 @@ fn update_main_router(ctx: &Context, name: &str) {
     if !content.contains("use handler::") {
         // First handler - add imports section
         let imports = if ctx.is_new_all {
-            // new-all: Add all necessary imports
-            format!("mod handler;\n\nuse axum::Router;\nuse std::sync::Arc;\nuse tokio::net::TcpListener;\n\nuse config::database::DatabaseConfig;\nuse factory::{}_factory;\nuse service::{}_service::{}Service;\nuse usecase::{}_usecase::{}Usecase;\nuse handler::{}_handler::{}Handler;", 
-                snake, snake, pascal, snake, pascal, snake, pascal)
+            // new-all: Add all necessary imports including Swagger UI
+            format!("mod handler;\n\nuse axum::Router;\nuse std::sync::Arc;\nuse tokio::net::TcpListener;\nuse utoipa::OpenApi;\nuse utoipa_swagger_ui::SwaggerUi;\n\nuse config::database::DatabaseConfig;\nuse factory::{}_factory;\nuse service::{}_service::{}Service;\nuse usecase::{}_usecase::{}Usecase;\nuse handler::{}_handler::{{{}Handler, {}ApiDoc}};", 
+                snake, snake, pascal, snake, pascal, snake, pascal, pascal)
         } else {
-            // gen handler: Just handler import
-            format!("mod handler;\n\nuse axum::Router;\nuse std::sync::Arc;\nuse tokio::net::TcpListener;\nuse handler::{}_handler::{}Handler;", snake, pascal)
+            // gen handler: Just handler import with Swagger
+            format!("mod handler;\n\nuse axum::Router;\nuse std::sync::Arc;\nuse tokio::net::TcpListener;\nuse utoipa::OpenApi;\nuse utoipa_swagger_ui::SwaggerUi;\nuse handler::{}_handler::{{{}Handler, {}ApiDoc}};", snake, pascal, pascal)
         };
         
         new_content = new_content.replace("mod handler;", &imports);
@@ -63,7 +63,7 @@ fn update_main_router(ctx: &Context, name: &str) {
     // Replace the main function with actual router setup
     if content.contains("println!(\"🚀 Welcome") {
         let new_main = if ctx.is_new_all {
-            // new-all: Generate complete working code
+            // new-all: Generate complete working code with Swagger UI
             format!(r#"
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {{
@@ -78,18 +78,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
     let usecase = Arc::new(usecase::{}_usecase::{}Usecase::new(repository));
     let service = Arc::new(service::{}_service::{}Service::new(usecase));
     
+    // Merge OpenAPI docs
+    let openapi = {}ApiDoc::openapi();
+    
     let app = Router::new()
-        .merge({}Handler::routes(service));
+        .merge({}Handler::routes(service))
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi));
     
     let addr = "127.0.0.1:3000";
     println!("✅ Server listening on http://{{}}", addr);
+    println!("📚 Swagger UI available at http://{{}}/swagger-ui", addr);
     
     let listener = TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
     
     Ok(())
 }}
-"#, snake, snake, snake, pascal, snake, pascal, pascal)
+"#, snake, snake, snake, pascal, snake, pascal, pascal, pascal)
         } else {
             // gen handler: Generate with TODO comments
             format!(r#"
