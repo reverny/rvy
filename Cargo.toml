@@ -3,6 +3,18 @@ name = "rvy"
 version = "0.1.0"
 edition = "2021"
 
+description = "CLI framework for generating services"
+license = "MIT"
+repository = "https://github.com/rvy-reverny/rvy"
+homepage = "https://github.com/rvy-reverny/rvy"
+documentation = "https://docs.rs/rvy"
+
+readme = "README.md"
+keywords = ["cli", "framework", "generator"]
+categories = ["command-line-utilities"]
+
+authors = ["rvy-reverny"]
+
 [[bin]]
 name = "rvy"
 path = "src/main.rs"
