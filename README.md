@@ -18,13 +18,24 @@ A powerful CLI tool for scaffolding production-ready Rust projects with **Clean 
 
 ## Installation
 
+### From crates.io (Recommended)
+
 ```bash
+cargo install rvy
+```
+
+### From source
+
+```bash
+git clone https://github.com/rvy-reverny/rvy.git
+cd rvy
 cargo install --path .
 ```
 
-Or run directly:
+### Verify installation
+
 ```bash
-cargo run -- <command>
+rvy --help
 ```
 
 ## Usage
