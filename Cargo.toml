@@ -1,19 +1,32 @@
 [package]
 name = "rvy"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
-description = "CLI framework for generating services"
+description = "A modular Rust CLI framework for generating services, tools, and project scaffolds."
 license = "MIT"
+
 repository = "https://github.com/rvy-reverny/rvy"
 homepage = "https://github.com/rvy-reverny/rvy"
 documentation = "https://docs.rs/rvy"
 
 readme = "README.md"
-keywords = ["cli", "framework", "generator"]
-categories = ["command-line-utilities"]
 
-authors = ["rvy-reverny"]
+keywords = [
+  "cli",
+  "framework",
+  "generator",
+  "rust",
+  "scaffold",
+  "codegen"
+]
+
+categories = [
+  "command-line-utilities",
+  "development-tools"
+]
+
+authors = ["rvy-reverny <contact@rvy.dev>"]
 
 [[bin]]
 name = "rvy"
