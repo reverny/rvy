@@ -17,6 +17,7 @@ A powerful CLI tool for scaffolding production-ready Rust projects with **Clean 
 - 📦 **Zero Configuration** - Works out of the box with sensible defaults
 - 🧪 **Testing** - Auto-generated unit and integration tests
 - 📝 **Migrations** - Database migration files for all supported databases
+- ⚠️ **Error Handling** - Comprehensive error types with proper HTTP status codes
 
 ## Installation
 
@@ -404,6 +405,78 @@ sqlite3 data.db < migrations/20240101_create_products_table_sqlite.sql
 ```
 
 For MongoDB, include the setup script in your application initialization.
+
+## ⚠️ Error Handling
+
+RVY generates a comprehensive error handling system with custom error types and automatic HTTP response conversion.
+
+### Error Types
+
+```rust
+// src/error.rs
+pub enum AppError {
+    Database(String),      // Database errors (SQLx, MongoDB)
+    NotFound(String),      // 404 - Resource not found
+    Validation(String),    // 400 - Validation errors
+    Unauthorized(String),  // 401 - Auth errors
+    Internal(String),      // 500 - Internal errors
+    BadRequest(String),    // 400 - Bad request
+}
+```
+
+### Usage in Code
+
+```rust
+// Service layer with validation
+pub async fn create(&self, data: ProductData) -> Result<ProductData> {
+    if data.name.is_empty() {
+        return Err(AppError::Validation("Name cannot be empty".to_string()));
+    }
+    self.repository.save(&data).await
+}
+
+// Handler with automatic error conversion
+async fn create_product(
+    State(service): State<Arc<ProductService>>,
+    Json(data): Json<ProductData>,
+) -> Result<(StatusCode, Json<ProductData>), AppError> {
+    let item = service.create(data).await?; // AppError auto-converts to HTTP response
+    Ok((StatusCode::CREATED, Json(item)))
+}
+```
+
+### Error Responses
+
+Errors are automatically converted to JSON responses with proper HTTP status codes:
+
+```json
+{
+  "error": "VALIDATION_ERROR",
+  "message": "Name cannot be empty",
+  "details": null
+}
+```
+
+**HTTP Status Codes:**
+- `400` - Validation errors, bad requests
+- `401` - Unauthorized access
+- `404` - Resource not found
+- `500` - Database errors, internal errors
+
+### Automatic Error Conversion
+
+The error module includes automatic conversions from common error types:
+
+```rust
+// SQLx errors → AppError::Database or AppError::NotFound
+impl From<sqlx::Error> for AppError { ... }
+
+// MongoDB errors → AppError::Database
+impl From<mongodb::error::Error> for AppError { ... }
+
+// JSON parsing errors → AppError::BadRequest
+impl From<serde_json::Error> for AppError { ... }
+```
 
 ## 📚 API Documentation
 

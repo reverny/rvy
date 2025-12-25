@@ -13,6 +13,7 @@ pub mod project;
 pub mod dispatch;
 pub mod test;
 pub mod migration;
+pub mod error;
 
 
 pub fn render(template: &str, name: &str) -> String {

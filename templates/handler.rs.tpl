@@ -11,6 +11,7 @@ use utoipa::OpenApi;
 
 use crate::service::{{name}}_service::{{Name}}Service;
 use crate::data::{{name}}_data::{{Name}}Data;
+use crate::error::AppError;
 
 // NOTE: This file contains business logic and OpenAPI documentation.
 // If you modify the data model, you may need to regenerate this file with:
@@ -88,11 +89,9 @@ impl {{Name}}Handler {
 )]
 async fn get_all_{{name}}s(
     State(service): State<Arc<{{Name}}Service>>,
-) -> Result<Json<Vec<{{Name}}Data>>, (StatusCode, String)> {
-    match service.get_all().await {
-        Ok(items) => Ok(Json(items)),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
-    }
+) -> Result<Json<Vec<{{Name}}Data>>, AppError> {
+    let items = service.get_all().await?;
+    Ok(Json(items))
 }
 
 #[utoipa::path(
@@ -112,11 +111,9 @@ async fn get_all_{{name}}s(
 async fn get_{{name}}_by_id(
     State(service): State<Arc<{{Name}}Service>>,
     Path(id): Path<i64>,
-) -> Result<Json<{{Name}}Data>, (StatusCode, String)> {
-    match service.get_by_id(id).await {
-        Ok(item) => Ok(Json(item)),
-        Err(e) => Err((StatusCode::NOT_FOUND, e.to_string())),
-    }
+) -> Result<Json<{{Name}}Data>, AppError> {
+    let item = service.get_by_id(id).await?;
+    Ok(Json(item))
 }
 
 #[utoipa::path(
@@ -134,11 +131,9 @@ async fn get_{{name}}_by_id(
 async fn create_{{name}}(
     State(service): State<Arc<{{Name}}Service>>,
     Json(data): Json<{{Name}}Data>,
-) -> Result<(StatusCode, Json<{{Name}}Data>), (StatusCode, String)> {
-    match service.create(data).await {
-        Ok(item) => Ok((StatusCode::CREATED, Json(item))),
-        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
-    }
+) -> Result<(StatusCode, Json<{{Name}}Data>), AppError> {
+    let item = service.create(data).await?;
+    Ok((StatusCode::CREATED, Json(item)))
 }
 
 #[utoipa::path(
@@ -161,11 +156,9 @@ async fn update_{{name}}(
     State(service): State<Arc<{{Name}}Service>>,
     Path(id): Path<i64>,
     Json(data): Json<{{Name}}Data>,
-) -> Result<Json<{{Name}}Data>, (StatusCode, String)> {
-    match service.update(id, data).await {
-        Ok(item) => Ok(Json(item)),
-        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
-    }
+) -> Result<Json<{{Name}}Data>, AppError> {
+    let item = service.update(id, data).await?;
+    Ok(Json(item))
 }
 
 #[utoipa::path(
@@ -185,10 +178,8 @@ async fn update_{{name}}(
 async fn delete_{{name}}(
     State(service): State<Arc<{{Name}}Service>>,
     Path(id): Path<i64>,
-) -> Result<StatusCode, (StatusCode, String)> {
-    match service.delete(id).await {
-        Ok(_) => Ok(StatusCode::NO_CONTENT),
-        Err(e) => Err((StatusCode::NOT_FOUND, e.to_string())),
-    }
+) -> Result<StatusCode, AppError> {
+    service.delete(id).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 

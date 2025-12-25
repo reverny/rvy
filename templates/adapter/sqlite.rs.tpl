@@ -2,6 +2,7 @@ use sqlx::{SqlitePool, FromRow};
 use async_trait::async_trait;
 use crate::repository::{{name}}::{{Name}}Repository;
 use crate::data::{{name}}_data::{{Name}}Data;
+use crate::error::Result;
 
 pub struct Sqlite{{Name}}Repository {
     pool: SqlitePool,
@@ -15,7 +16,7 @@ impl Sqlite{{Name}}Repository {
 
 #[async_trait]
 impl {{Name}}Repository for Sqlite{{Name}}Repository {
-    async fn find_by_id(&self, id: i64) -> Result<{{Name}}Data, Box<dyn std::error::Error>> {
+    async fn find_by_id(&self, id: i64) -> Result<{{Name}}Data> {
         let row = sqlx::query_as::<_, {{Name}}Data>(
             "SELECT id, name, created_at, updated_at FROM {{name}}s WHERE id = ?"
         )
@@ -26,7 +27,7 @@ impl {{Name}}Repository for Sqlite{{Name}}Repository {
         Ok(row)
     }
 
-    async fn find_all(&self) -> Result<Vec<{{Name}}Data>, Box<dyn std::error::Error>> {
+    async fn find_all(&self) -> Result<Vec<{{Name}}Data>> {
         let rows = sqlx::query_as::<_, {{Name}}Data>(
             "SELECT id, name, created_at, updated_at FROM {{name}}s"
         )
@@ -36,7 +37,7 @@ impl {{Name}}Repository for Sqlite{{Name}}Repository {
         Ok(rows)
     }
 
-    async fn save(&self, data: &{{Name}}Data) -> Result<{{Name}}Data, Box<dyn std::error::Error>> {
+    async fn save(&self, data: &{{Name}}Data) -> Result<{{Name}}Data> {
         let row = sqlx::query_as::<_, {{Name}}Data>(
             "INSERT INTO {{name}}s (id, name, created_at, updated_at) 
              VALUES (?, ?, ?, ?) 
@@ -52,7 +53,7 @@ impl {{Name}}Repository for Sqlite{{Name}}Repository {
         Ok(row)
     }
 
-    async fn update(&self, id: i64, data: &{{Name}}Data) -> Result<{{Name}}Data, Box<dyn std::error::Error>> {
+    async fn update(&self, id: i64, data: &{{Name}}Data) -> Result<{{Name}}Data> {
         let row = sqlx::query_as::<_, {{Name}}Data>(
             "UPDATE {{name}}s 
              SET name = ?, updated_at = ? 
@@ -68,7 +69,7 @@ impl {{Name}}Repository for Sqlite{{Name}}Repository {
         Ok(row)
     }
 
-    async fn delete(&self, id: i64) -> Result<(), Box<dyn std::error::Error>> {
+    async fn delete(&self, id: i64) -> Result<()> {
         sqlx::query("DELETE FROM {{name}}s WHERE id = ?")
             .bind(id)
             .execute(&self.pool)

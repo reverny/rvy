@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::generator::{service, usecase, repository, data, adapter, handler, test, migration};
+use crate::generator::{service, usecase, repository, data, adapter, handler, test, migration, error};
 
 pub enum GenKind {
     Service,
@@ -50,6 +50,9 @@ pub fn dispatch(kind: GenKind, ctx: &Context, name: &str) {
 }
 
 pub fn generate_all(ctx: &Context, name: &str) {
+    // Generate error module first (only once, not per entity)
+    error::generate_error_module(ctx, name);
+    
     dispatch(GenKind::Service, ctx, name);
     dispatch(GenKind::Usecase, ctx, name);
     dispatch(GenKind::Repository, ctx, name);
